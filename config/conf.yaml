@@ -1,0 +1,69 @@
+hydra:
+  output_subdir: null
+  run:
+    dir: .
+
+
+defaults:
+  - _self_
+  - fields
+#  - taskConf: incconf  #INC Airport
+  - taskConf: szxconf  #SZX Airport
+
+
+hyperparameters:
+  seed: 0
+  batch_size: 32
+  epochs: 500
+  train: False
+  combine: False
+
+env:
+  _target_: environment.environment.Environment
+  constraints: ${taskConf.Constraints}
+  reward:
+    _target_: environment.knowledge.Reward
+    _partial_: true
+    cls: ??
+    criteria:
+      - positions: is_near_bridge
+  data:
+    _target_: data.dataset.Data
+    plannings: ${taskConf.Input.data.plannings}
+    positions: ${taskConf.Input.data.positions}
+    rules: ${taskConf.Input.data.rules}
+    transformers: ${Transformers}
+    preload: ${taskConf.Input.data.preload}
+
+solver:
+  _target_: agent.solver.Solver
+  optimizer: ${gnp4mis_optimizer}
+
+mis_gurobi_optimizer:
+  _target_: agent.solver.MISGurobiOptimizer
+  _partial_: true
+
+
+gnp4mis_optimizer:
+  _target_: agent.solver.GNPOptimizer
+  _partial_: true
+  Policy:
+    _target_: agent.gnr.gnn_agent.Policy
+    in_dim: 4
+    out_dim: 32
+    act_fn: 'silu'
+    agg_fn: 'mean'
+    depth: 12
+    initial_lr: 1e-3
+    step_size: 100
+    gamma: 0.1
+    tradeoff: 1
+    norm:
+      _target_: torch_geometric.nn.BatchNorm
+      _partial_: true
+    pooling:
+      _target_: agent.gnr.gnn_agent.AvgPooling
+
+
+
+
