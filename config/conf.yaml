@@ -48,7 +48,7 @@ gnp4mis_optimizer:
   _target_: agent.solver.GNPOptimizer
   _partial_: true
   Policy:
-    _target_: agent.gnr.gnn_agent.Policy
+    _target_: agent.gnp4mis.gnn_agent.Policy
     in_dim: 4
     out_dim: 32
     act_fn: 'silu'
@@ -62,7 +62,7 @@ gnp4mis_optimizer:
       _target_: torch_geometric.nn.BatchNorm
       _partial_: true
     pooling:
-      _target_: agent.gnr.gnn_agent.AvgPooling
+      _target_: agent.gnp4mis.gnn_agent.AvgPooling
 
 
 
